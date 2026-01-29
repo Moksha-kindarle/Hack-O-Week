@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+    <title>Event Registration</title>
+    <style>
+        body {
+            background-image: url("formbg.avif"); 
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+        .form-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            width: 50%;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0,0,0,0.2);
+        }
+        h1 {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .section-title {
+            border-bottom: 2px solid #2c3e50;
+            margin-top: 20px;
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <center><img src="SIT_logo.jpeg" style="width:300px; height: auto;"></center>
+    
+    <h1>Event Registration Form</h1>
+
+    <form>
+        <h3 class="section-title">Participant Details</h3>
+        <label><b>Full Name:</b></label><br>
+        <input type="text" name="fname" placeholder="First Name" required>
+        <input type="text" name="lname" placeholder="Last Name" required>
+        <br><br>
+
+        <label><b>Email Address:</b></label><br>
+        <input type="email" name="email" style="width: 80%;" required>
+        <br><br>
+
+        <label><b>Contact Number:</b></label><br>
+        <input type="tel" name="phone">
+        <br><br>
+
+        <label><b>PRN:</b></label><br>
+        <input type="text" name="PRN">
+        <br><br>
+
+        <h3 class="section-title">Participation Info</h3>
+        
+        <label><b>Cultural Events:</b></label><br>
+        <input type="radio" name="Cultural Event" value="Cultural Event"> Dance<br>
+        <input type="radio" name="Cultural Event" value="Cultural Event"> Drama<br>
+        <input type="radio" name="Cultural Event" value="Cultural Event"> Singing<br>
+        <input type="radio" name="Cultural Event" value="Cultural Event"> Group Dance<br>
+        <br>
+
+        <label><b>Technical Workshop Interests:</b></label><br>
+        <input type="checkbox" name="track" value="tech"> IoT <br>
+        <input type="checkbox" name="track" value="design"> UI/UX Design<br>
+        <input type="checkbox" name="track" value="business"> Entrepreneurship<br>
+        <input type="checkbox" name="track" value="business"> AI & ML<br>
+        <input type="checkbox" name="track" value="business"> Cybersecurity<br>
+        <br>
+    
+
+        <label><b>Upload ID Proof (PDF/JPG):</b></label><br>
+        <input type="file" name="id_upload">
+        <br><br>
+
+        <center>
+            <input type="submit" value="Register for Event" style="padding: 10px 20px; background-color: #2c3e50; color: white; border: none; cursor: pointer;">
+        </center>
+    </form>
+</div>
+
+</body>
+</html>
