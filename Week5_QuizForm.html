@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sports Quiz Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#6C3BFF;--primary-light:#8B5CF6;--accent:#F59E0B;--success:#10B981;--danger:#EF4444;--bg:#0F0E17;--surface:#1A1927;--surface2:#242235;--border:#2E2B45;--text:#F0EEF9;--muted:#8B87A8}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 60px}
+header{background:linear-gradient(135deg,#1A1927,#0F0E17);border-bottom:1px solid var(--border);padding:28px 20px 24px;text-align:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.header-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,59,255,.15);border:1px solid rgba(108,59,255,.35);color:#A78BFA;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:12px}
+header h1{font-size:clamp(1.5rem,4vw,2.3rem);font-weight:900;background:linear-gradient(135deg,#fff,#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+header p{color:var(--muted);font-size:14px;margin-top:6px}
+.meta-row{display:flex;justify-content:center;gap:24px;margin-top:16px;flex-wrap:wrap}
+.meta-chip{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-weight:500}
+.meta-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.progress-wrap{max-width:760px;margin:28px auto 0;padding:0 20px}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}
+.progress-bar{height:6px;background:var(--surface2);border-radius:6px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),#A78BFA);border-radius:6px;transition:width .4s ease;width:0%}
+main{max-width:760px;margin:0 auto;padding:0 20px}
+.question-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-top:20px;transition:border-color .25s,transform .2s;position:relative;overflow:hidden;animation:slideUp .4s ease both}
+.question-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),#A78BFA);opacity:0;transition:opacity .3s}
+.question-card.answered::before{opacity:1}
+.question-card:hover{border-color:rgba(108,59,255,.4)}
+.question-number{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--primary-light);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.q-icon{width:22px;height:22px;background:rgba(108,59,255,.15);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.question-text{font-size:clamp(15px,2.5vw,17px);font-weight:600;line-height:1.55;color:var(--text);margin-bottom:20px}
+.options-grid{display:flex;flex-direction:column;gap:10px}
+.option-label{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s ease;user-select:none}
+.option-label:hover{border-color:rgba(108,59,255,.5);background:rgba(108,59,255,.08);transform:translateX(3px)}
+.option-label input[type="radio"]{display:none}
+.radio-dot{width:20px;height:20px;min-width:20px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.radio-dot::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--primary);transform:scale(0);transition:transform .2s ease}
+.option-label input:checked+.radio-dot{border-color:var(--primary)}
+.option-label input:checked+.radio-dot::after{transform:scale(1)}
+.option-label:has(input:checked){border-color:var(--primary);background:rgba(108,59,255,.12)}
+.option-text{font-size:14.5px;font-weight:500;color:var(--text);line-height:1.4}
+.option-alpha{font-size:11px;font-weight:700;color:var(--muted);min-width:18px}
+.option-label.correct-answer{background:rgba(16,185,129,.12)!important;border-color:var(--success)!important;pointer-events:none}
+.option-label.wrong-selected{background:rgba(239,68,68,.1)!important;border-color:var(--danger)!important;pointer-events:none}
+.option-label.disabled{pointer-events:none;opacity:.55}
+.correct-answer .radio-dot{border-color:var(--success)!important}
+.correct-answer .radio-dot::after{background:var(--success)!important;transform:scale(1)!important}
+.wrong-selected .radio-dot{border-color:var(--danger)!important}
+.wrong-selected .radio-dot::after{background:var(--danger)!important;transform:scale(1)!important}
+.answer-badge{margin-left:auto;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.badge-correct{background:rgba(16,185,129,.2);color:var(--success)}
+.badge-wrong{background:rgba(239,68,68,.2);color:var(--danger)}
+.correct-note{margin-top:14px;padding:12px 16px;background:rgba(245,158,11,.08);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;font-size:13px;color:#FCD34D;font-weight:500;display:none}
+.correct-note strong{color:#F59E0B}
+.submit-wrap{margin-top:32px;text-align:center}
+.btn-submit{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--primary),#A78BFA);color:#fff;font-size:16px;font-weight:700;padding:16px 48px;border:none;border-radius:50px;cursor:pointer;letter-spacing:.3px;box-shadow:0 8px 30px rgba(108,59,255,.4);transition:all .25s ease}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(108,59,255,.55)}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
+#warn-msg{margin-top:14px;color:#FCA5A5;font-size:13.5px;font-weight:500;display:none}
+#result-section{display:none;margin-top:32px}
+.result-card{background:linear-gradient(135deg,#1A1927,#1E1A35);border:1px solid rgba(108,59,255,.35);border-radius:20px;padding:40px 32px;text-align:center;position:relative;overflow:hidden}
+.result-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(108,59,255,.18),transparent 70%);pointer-events:none}
+.trophy{font-size:56px;margin-bottom:8px;display:block;filter:drop-shadow(0 4px 16px rgba(245,158,11,.4))}
+.result-title{font-size:24px;font-weight:800;color:var(--text);margin-bottom:6px}
+.result-subtitle{font-size:14px;color:var(--muted);margin-bottom:30px}
+.score-circle{display:inline-flex;align-items:center;justify-content:center;width:130px;height:130px;border-radius:50%;background:conic-gradient(var(--primary) var(--pct,0deg),var(--surface2) 0deg);margin:0 auto 28px;position:relative}
+.score-circle-inner{width:104px;height:104px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-number{font-size:32px;font-weight:900;color:var(--text);line-height:1}
+.score-total{font-size:13px;color:var(--muted);font-weight:500}
+.stats-row{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+.stat-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px 24px;min-width:110px;flex:1;max-width:160px}
+.stat-value{font-size:28px;font-weight:800;display:block}
+.stat-label{font-size:12px;color:var(--muted);font-weight:500;margin-top:2px}
+.stat-correct .stat-value{color:var(--success)}
+.stat-wrong .stat-value{color:var(--danger)}
+.stat-pct .stat-value{color:var(--primary-light)}
+.grade-band{display:inline-block;padding:8px 24px;border-radius:24px;font-size:14px;font-weight:700;margin-bottom:24px}
+.grade-s{background:rgba(16,185,129,.15);color:var(--success);border:1px solid rgba(16,185,129,.3)}
+.grade-a{background:rgba(108,59,255,.15);color:#A78BFA;border:1px solid rgba(108,59,255,.3)}
+.grade-b{background:rgba(245,158,11,.15);color:var(--accent);border:1px solid rgba(245,158,11,.3)}
+.grade-c{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3)}
+.btn-retry{display:inline-flex;align-items:center;gap:8px;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);font-size:14px;font-weight:600;padding:12px 32px;border-radius:50px;cursor:pointer;transition:all .2s ease;margin-top:8px}
+.btn-retry:hover{border-color:var(--primary);color:#A78BFA;background:rgba(108,59,255,.08)}
+.sticky-counter{position:fixed;bottom:16px;right:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 16px;font-size:12.5px;font-weight:600;color:var(--muted);z-index:99;box-shadow:0 4px 20px rgba(0,0,0,.4);display:flex;align-items:center;gap:8px}
+.counter-fill{color:var(--primary-light);font-weight:800}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{0%{transform:scale(.8);opacity:0}70%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
+#result-section.visible{animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both}
+.question-card:nth-child(1){animation-delay:.05s}.question-card:nth-child(2){animation-delay:.1s}.question-card:nth-child(3){animation-delay:.15s}.question-card:nth-child(4){animation-delay:.2s}.question-card:nth-child(5){animation-delay:.25s}.question-card:nth-child(6){animation-delay:.3s}.question-card:nth-child(7){animation-delay:.35s}.question-card:nth-child(8){animation-delay:.4s}.question-card:nth-child(9){animation-delay:.45s}.question-card:nth-child(10){animation-delay:.5s}
+@media(max-width:520px){.question-card{padding:20px 16px}.result-card{padding:28px 18px}.stat-box{min-width:90px;padding:14px 16px}.btn-submit{padding:14px 32px;font-size:15px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-badge">⚡ Live Quiz</div>
+  <h1>🏆 Sports Quiz Challenge</h1>
+  <p>Test your sports knowledge across 10 questions</p>
+  <div class="meta-row">
+    <div class="meta-chip"><span class="dot"></span>10 Questions</div>
+    <div class="meta-chip"><span class="dot" style="background:#10B981"></span>Multiple Choice</div>
+    <div class="meta-chip"><span class="dot" style="background:#6C3BFF"></span>All Sports</div>
+  </div>
+</header>
+<div class="progress-wrap">
+  <div class="progress-label"><span>Progress</span><span id="progress-text">0 / 10 answered</span></div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+</div>
+<main>
+  <form id="quiz-form" novalidate></form>
+  <div class="submit-wrap">
+    <button type="button" class="btn-submit" id="submit-btn" onclick="submitQuiz()">Submit Answers &nbsp;→</button>
+    <p id="warn-msg">⚠️ Please answer all questions before submitting.</p>
+  </div>
+  <div id="result-section">
+    <div class="result-card">
+      <span class="trophy" id="trophy-emoji">🏆</span>
+      <div class="result-title" id="result-title">Quiz Complete!</div>
+      <div class="result-subtitle" id="result-subtitle">Here's how you performed</div>
+      <div class="score-circle" id="score-circle">
+        <div class="score-circle-inner">
+          <span class="score-number" id="score-num">0</span>
+          <span class="score-total">/ 10</span>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box stat-correct"><span class="stat-value" id="stat-correct">0</span><div class="stat-label">Correct</div></div>
+        <div class="stat-box stat-wrong"><span class="stat-value" id="stat-wrong">0</span><div class="stat-label">Incorrect</div></div>
+        <div class="stat-box stat-pct"><span class="stat-value" id="stat-pct">0%</span><div class="stat-label">Score</div></div>
+      </div>
+      <div class="grade-band" id="grade-band">—</div><br/>
+      <button class="btn-retry" onclick="location.reload()">↺ &nbsp;Try Again</button>
+    </div>
+  </div>
+</main>
+<div class="sticky-counter"><span>📝 <span class="counter-fill" id="cnt">0</span> / 10 answered</span></div>
+<script>
+const Q=[
+  {q:"Which country has won the most FIFA World Cup titles?",opts:["Germany","Argentina","Brazil","Italy"],ans:2,note:"Brazil has won the FIFA World Cup a record 5 times (1958, 1962, 1970, 1994, 2002)."},
+  {q:"In basketball, how many points is a regular field goal (inside the arc) worth?",opts:["1 point","2 points","3 points","4 points"],ans:1,note:"A field goal inside the three-point arc is worth 2 points."},
+  {q:"Which tennis player has won the most Grand Slam singles titles in men's tennis (as of 2024)?",opts:["Roger Federer","Rafael Nadal","Novak Djokovic","Pete Sampras"],ans:2,note:"Novak Djokovic holds the record with 24 Grand Slam singles titles."},
+  {q:"What is the maximum break in snooker (highest possible score in one visit)?",opts:["147","155","168","180"],ans:0,note:"A maximum break of 147 consists of potting all 15 reds with blacks, then all colours."},
+  {q:"In which sport would you perform a 'slam dunk'?",opts:["Volleyball","Baseball","Basketball","Tennis"],ans:2,note:"A slam dunk is a basketball shot where the player jumps and forces the ball through the hoop."},
+  {q:"How many players are on a standard rugby union team?",opts:["11","13","15","17"],ans:2,note:"A rugby union team has 15 players — 8 forwards and 7 backs."},
+  {q:"Which country hosted the 2020 Summer Olympics (held in 2021)?",opts:["China","Japan","South Korea","Australia"],ans:1,note:"Tokyo, Japan hosted the delayed 2020 Summer Olympics in 2021 due to COVID-19."},
+  {q:"What is the regulation distance of a marathon race?",opts:["26.1 miles (42.0 km)","26.2 miles (42.195 km)","25.0 miles (40.2 km)","27.0 miles (43.5 km)"],ans:1,note:"A marathon is exactly 26.2 miles (42.195 km), standardised since the 1908 London Olympics."},
+  {q:"In cricket, what term describes a batsman dismissed without scoring a single run?",opts:["Bye","Duck","Wide","No-ball"],ans:1,note:"A 'duck' means dismissed for zero runs. A 'golden duck' means out on the very first ball."},
+  {q:"Which Formula 1 driver holds the record for the most World Championship titles?",opts:["Ayrton Senna","Michael Schumacher","Lewis Hamilton","Sebastian Vettel"],ans:2,note:"Lewis Hamilton and Michael Schumacher are both tied at 7 World Championship titles each."}
+];
+const ALPHA=['A','B','C','D'];
+const form=document.getElementById('quiz-form');
+Q.forEach((q,qi)=>{
+  const card=document.createElement('div');
+  card.className='question-card';card.id='card-'+qi;
+  card.innerHTML=`<div class="question-number"><span class="q-icon">⚡</span>Question ${qi+1} of ${Q.length}</div>
+  <div class="question-text">${q.q}</div>
+  <div class="options-grid" id="opts-${qi}">${q.opts.map((o,oi)=>`
+    <label class="option-label" id="opt-${qi}-${oi}">
+      <input type="radio" name="q${qi}" value="${oi}" onchange="onAns(${qi})">
+      <span class="radio-dot"></span>
+      <span class="option-alpha">${ALPHA[oi]}</span>
+      <span class="option-text">${o}</span>
+    </label>`).join('')}</div>
+  <div class="correct-note" id="note-${qi}">✅ Correct answer: <strong>${q.opts[q.ans]}</strong> — ${q.note}</div>`;
+  form.appendChild(card);
+});
+const answered=new Array(Q.length).fill(false);
+function onAns(qi){
+  answered[qi]=true;
+  document.getElementById('card-'+qi).classList.add('answered');
+  const c=answered.filter(Boolean).length;
+  const pct=(c/Q.length)*100;
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-text').textContent=c+' / '+Q.length+' answered';
+  document.getElementById('cnt').textContent=c;
+}
+function submitQuiz(){
+  if(answered.filter(v=>!v).length>0){
+    document.getElementById('warn-msg').style.display='block';
+    const fi=answered.findIndex(v=>!v);
+    document.getElementById('card-'+fi).scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  document.getElementById('warn-msg').style.display='none';
+  document.getElementById('submit-btn').disabled=true;
+  let correct=0;
+  Q.forEach((q,qi)=>{
+    const sel=parseInt(document.querySelector('input[name="q'+qi+'"]:checked').value);
+    const ok=sel===q.ans;
+    if(ok)correct++;
+    const wrap=document.getElementById('opts-'+qi);
+    wrap.querySelectorAll('.option-label').forEach(l=>l.classList.add('disabled'));
+    const cLbl=document.getElementById('opt-'+qi+'-'+q.ans);
+    cLbl.classList.remove('disabled');cLbl.classList.add('correct-answer');
+    cLbl.insertAdjacentHTML('beforeend','<span class="answer-badge badge-correct">✓ Correct</span>');
+    if(!ok){
+      const wLbl=document.getElementById('opt-'+qi+'-'+sel);
+      wLbl.classList.remove('disabled');wLbl.classList.add('wrong-selected');
+      wLbl.insertAdjacentHTML('beforeend','<span class="answer-badge badge-wrong">✗ Wrong</span>');
+      document.getElementById('note-'+qi).style.display='block';
+    }
+  });
+  showResult(correct);
+}
+function showResult(c){
+  const w=Q.length-c,pct=Math.round(c/Q.length*100);
+  document.getElementById('score-num').textContent=c;
+  document.getElementById('stat-correct').textContent=c;
+  document.getElementById('stat-wrong').textContent=w;
+  document.getElementById('stat-pct').textContent=pct+'%';
+  const deg=(c/Q.length)*360;
+  document.getElementById('score-circle').style.setProperty('--pct',deg+'deg');
+  let grade,trophy,title,sub;
+  if(pct===100){trophy='🏆';title='Perfect Score!';sub='You\'re a true sports champion!';grade='grade-s';document.getElementById('grade-band').textContent='🥇 Perfect — S Rank';}
+  else if(pct>=80){trophy='🥈';title='Excellent!';sub='Outstanding sports knowledge!';grade='grade-a';document.getElementById('grade-band').textContent='🌟 Excellent — A Rank';}
+  else if(pct>=60){trophy='🥉';title='Good Job!';sub='Solid performance, keep it up!';grade='grade-b';document.getElementById('grade-band').textContent='👍 Good — B Rank';}
+  else{trophy='📚';title='Keep Practising!';sub='Review the correct answers and try again.';grade='grade-c';document.getElementById('grade-band').textContent='💪 Keep Trying — C Rank';}
+  document.getElementById('trophy-emoji').textContent=trophy;
+  document.getElementById('result-title').textContent=title;
+  document.getElementById('result-subtitle').textContent=sub;
+  document.getElementById('grade-band').className='grade-band '+grade;
+  const rs=document.getElementById('result-section');
+  rs.style.display='block';rs.classList.add('visible');
+  rs.scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body>
+</html>
